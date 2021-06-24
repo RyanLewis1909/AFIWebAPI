@@ -25,6 +25,10 @@ namespace AFIWebAPI.Repositories
                 var result = from o in db.Customers
                              orderby o.FirstName ascending, o.Surname ascending
                              select o;
+                if (result == null)
+                {
+                    throw new ArgumentOutOfRangeException("There are no existing Customers");
+                }
 
                 foreach (var r in result)
                 {
@@ -54,6 +58,10 @@ namespace AFIWebAPI.Repositories
                 List<Customer> customers = new List<Customer>();
 
                 var result = db.Customers.Where(p => p.ID == id);
+                if (result == null)
+                {
+                    throw new ArgumentOutOfRangeException("Customers does not exist");
+                }
                 foreach (var r in result)
                 {
                     Customer customer = new Customer
@@ -114,6 +122,10 @@ namespace AFIWebAPI.Repositories
             {
                 List<Customer> customers = new List<Customer>();
                 var cusData = db.Customers.Find(id);
+                if (cusData == null)
+                {
+                    throw new ArgumentOutOfRangeException("Customers does not exist");
+                }
                 cusData.Email = email;
                 db.Customers.Update(cusData);
                 db.SaveChanges();
