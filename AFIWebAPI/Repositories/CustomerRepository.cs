@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace AFIWebAPI.Repositories
@@ -126,6 +127,19 @@ namespace AFIWebAPI.Repositories
                 {
                     throw new ArgumentOutOfRangeException("Customers does not exist");
                 }
+
+                // check email is valid
+                bool isValid = false;
+                try
+                {
+                    MailAddress address = new MailAddress(email);
+                    isValid = (address.Address == email);
+                }
+                catch (FormatException)
+                {
+                    throw new ArgumentOutOfRangeException("New email is invalid");
+                }
+
                 cusData.Email = email;
                 db.Customers.Update(cusData);
                 db.SaveChanges();
