@@ -1,5 +1,5 @@
 ﻿using AFIWebAPI.Models;
-using AFIWebAPI.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +16,11 @@ namespace AFIWebAPI.Repositories
             this.db = db;
         }
 
-        public List<CustomerViewModel> GetCustomers()
+        public List<Customer> GetCustomers()
         {
             if (db != null)
             {
-                List<CustomerViewModel> customers = new List<CustomerViewModel>();
+                List<Customer> customers = new List<Customer>();
 
                 var result = from o in db.Customers
                              orderby o.FirstName ascending, o.Surname ascending
@@ -28,7 +28,7 @@ namespace AFIWebAPI.Repositories
 
                 foreach (var r in result)
                 {
-                    CustomerViewModel customer = new CustomerViewModel
+                    Customer customer = new Customer
                     {
                         ID = r.ID,
                         FirstName = r.FirstName,
@@ -47,16 +47,16 @@ namespace AFIWebAPI.Repositories
             return null;
         }
 
-        public List<CustomerViewModel> GetCustomerById(Guid id)
+        public List<Customer> GetCustomerById(Guid id)
         {
             if (db != null)
             {
-                List<CustomerViewModel> customers = new List<CustomerViewModel>();
+                List<Customer> customers = new List<Customer>();
 
                 var result = db.Customers.Where(p => p.ID == id);
                 foreach (var r in result)
                 {
-                    CustomerViewModel customer = new CustomerViewModel
+                    Customer customer = new Customer
                     {
                         ID = r.ID,
                         FirstName = r.FirstName,
@@ -108,17 +108,54 @@ namespace AFIWebAPI.Repositories
             return null;
         }
 
+        public List<Customer> UpdateCustomerEmail(Guid id, string email)
+        {
+            if (db != null)
+            {
+                List<Customer> customers = new List<Customer>();
+                var cusData = db.Customers.Find(id);
+                cusData.Email = email;
+                db.Customers.Update(cusData);
+                db.SaveChanges();
+
+                //this is just for display
+                var result = db.Customers.Where(p => p.ID == id);
+                foreach (var r in result)
+                {
+                    Customer customer = new Customer
+                    {
+                        ID = r.ID,
+                        FirstName = r.FirstName,
+                        Surname = r.Surname,
+                        RefNo = r.RefNo,
+                        DateOfBirth = r.DateOfBirth.Date,
+                        Email = r.Email
+                    };
+
+                    customers.Add(customer);
+                }
+
+                return customers;
+            }
+
+            return null;
+        }
+
         public string DeleteCustomer(Guid id)
         {
-            var cus = db.Customers.Find(id);
-            if (cus == null)
+            if (db != null)
             {
-                throw new ArgumentOutOfRangeException("Customers does not exist");
-            }
-            db.Customers.Remove(cus);
-            db.SaveChanges();
+                var cus = db.Customers.Find(id);
+                if (cus == null)
+                {
+                    throw new ArgumentOutOfRangeException("Customers does not exist");
+                }
+                db.Customers.Remove(cus);
+                db.SaveChanges();
 
-            return "Customer removed";
+                return "Customer deleted";
+            }
+            return "Customer deletion failed";
         }
 
     }

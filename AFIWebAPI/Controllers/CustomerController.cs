@@ -1,11 +1,7 @@
 ﻿using AFIWebAPI.Models;
 using AFIWebAPI.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AFIWebAPI.Controllers
 {
@@ -64,6 +60,25 @@ namespace AFIWebAPI.Controllers
             try
             {
                 var messages = customerRepository.PostCustomer(customer);
+                if (messages == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(messages);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/{Email}")]
+        public IActionResult UpdateCustomerEmail(Guid id, string Email)
+        {
+            try
+            {
+                var messages = customerRepository.UpdateCustomerEmail(id, Email);
                 if (messages == null)
                 {
                     return NotFound();
